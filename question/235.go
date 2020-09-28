@@ -1,71 +1,54 @@
 package question
 
 /**
-	1. root 等于 p or q 只需要查看子节点中是否有另外一个
-    2. root 不等于 p or q
-		2.1 root 的子节点中包含其中一个
-        2.2 root 的子节点中不包含
-        2.3 root 子节点中包含二者
-*/
 
-var ancestor *TreeNode
-
-func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-	ancestor = nil
-	return LowestCommonAncestor(root, p, q)
+ */
+func LowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	return lowestCommonAncestor(root, p, q)
 }
 
-func LowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
-	if root == nil {
+func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
+	if root == nil || p == nil || q == nil {
 		return nil
 	}
-	if LowestCommonAncestor(root.Left, p, q) != nil {
-		return ancestor
-	}
-	if LowestCommonAncestor(root.Right, p, q) != nil {
-		return ancestor
-	}
-	if LowestCommonAncestor(root, p, q) != nil {
-		return ancestor
-	}
+	ancestor := lowestCommonAncestor(root.Left, p, q)
 	if ancestor != nil {
 		return ancestor
-	} else {
-		if contain(root.Right, p) && contain(root.Right, q) {
-			ancestor = root.Right
-			return ancestor
-		}
-		if contain(root.Left, p) && contain(root.Left, q) {
-			ancestor = root.Left
-			return ancestor
-		}
-		if contain(root.Left, p) && contain(root.Right, q) {
-			ancestor = root
-			return ancestor
-		}
-		if contain(root.Right, p) && contain(root.Left, q) {
-			ancestor = root
-			return ancestor
-		}
+	}
+	ancestor = lowestCommonAncestor(root.Right, p, q)
+	if ancestor != nil {
+		return ancestor
+	}
+	var lCount = contain(root.Left, p, q)
+	if lCount == 2 {
+		return root.Left
+	}
+	var rCount = contain(root.Right, p, q)
+	if rCount == 2 {
+		return root.Right
+	}
+	var count = contain(root, p, q)
+	if count == 2 {
+		return root
 	}
 	return nil
 }
 
-func contain(root, n *TreeNode) bool {
-	if n == nil {
-		return false
+func contain(root, p, q *TreeNode) int {
+	if root == nil || p == nil || q == nil {
+		return 0
 	}
-	if root == nil {
-		return false
+	var count = 0
+	count += contain(root.Left, p, q)
+	if count == 2 {
+		return count
 	}
-	if root.Val == n.Val {
-		return true
+	count += contain(root.Right, p, q)
+	if count == 2 {
+		return count
 	}
-	if contain(root.Left, n) {
-		return true
+	if root.Val == p.Val || root.Val == q.Val {
+		count += 1
 	}
-	if contain(root.Right, n) {
-		return true
-	}
-	return false
+	return count
 }
